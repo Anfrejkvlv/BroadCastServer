@@ -35,11 +35,4 @@ public class BroadCastServerApplication {
             System.out.println("Command inconnue: " + command);
         }
     }
-
-
-    private static void printUsage() {
-        System.out.println("Usage:");
-        System.out.println("  broadcast-server start    -> Démarre le serveur");
-        System.out.println("  broadcast-server connect  -> Connecte un client au serveur");
-    }
 }
