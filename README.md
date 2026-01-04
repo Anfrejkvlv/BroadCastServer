@@ -111,6 +111,11 @@ Entrez votre pseudo: Alexandra Odinov
 
 Une interface web est également disponible pour une expérience utilisateur plus conviviale.
 
+![User : Nikita](src/main/resources/nikita.png)
+![User : Persi](src/main/resources/persi.png)
+![Chat Interface ](src/main/resources/discussion.png)
+
+
 ### Accéder à l'interface web
 
 1. Démarrez le serveur : `java -jar target/BroadCastServer-1.jar start`

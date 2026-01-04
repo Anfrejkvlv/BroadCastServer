@@ -4,36 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canal de discussion</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        #app-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 400px; }
-        h2 { text-align: center; color: #333; }
-
-        #login-section { display: flex; flex-direction: column; gap: 10px; }
-
-        #chat-section { display: none; }
-        #chat-history {
-            height: 300px;
-            border: 1px solid #ddd;
-            background: #fafafa;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        .message-line { margin-bottom: 5px; font-size: 14px; }
-        .msg-pseudo { font-weight: bold; color: #007bff; }
-        .msg-content { color: #333; }
-        .msg-server { color: #888; font-style: italic; font-size: 12px; }
-
-        .input-group { display: flex; gap: 5px; }
-        input[type="text"] { flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        button#connectBtn { background-color: #007bff; }
-        button#disconnectBtn { background-color: darkred;  }
-        #disconnected-section { display: flex; justify-content: end;  align-items: end }
-    </style>
+    <link href="index.css" rel="stylesheet">
 </head>
 <body>
 
@@ -46,9 +17,12 @@
     </div>
 
     <div id="chat-section">
-        <div id="disconnected-section">
-            <button id="disconnectBtn" >Logout</button>
+        <div style="display: flex;  justify-content: space-between ; " class="disconnected-section">
+            <div id="pseudo-section">
+            </div>
+            <button style="background-color: darkred; " id="disconnectBtn">Logout</button>
         </div>
+
         <div id="chat-history">
         </div>
         <div class="input-group">
@@ -71,6 +45,7 @@
     const connectBtn = document.getElementById('connectBtn');
     const sendBtn = document.getElementById('sendBtn');
     const disconnectBtn = document.getElementById('disconnectBtn');
+    const pseudoSection = document.getElementById('pseudo-section');
 
 
 
@@ -80,13 +55,18 @@
         if (!pseudo) { alert("Veuillez entrer un pseudo !"); return; }
         myPseudo = pseudo;
 
-
         // Création de la connexion WebSocket native
         socket = new WebSocket(serverUrl);
 
         // Événement : Connexion réussie
         socket.onopen = function(event) {
             console.log("Connecté au serveur WS !");
+            const pseudoDiv = document.createElement('div');
+            pseudoDiv.className = "pseudo-line";
+
+            // Afficher le pseudo de l'utilisateur
+            pseudoDiv.innerHTML=`<h2 class="pseudo-name">${myPseudo}</h2>`;
+            pseudoSection.appendChild(pseudoDiv);
             // On envoie le message JSON de type "JOIN"
             const joinMessage = { type: "JOIN", sender: myPseudo, content: null };
             socket.send(JSON.stringify(joinMessage));
@@ -134,7 +114,6 @@
             // Message d'un utilisateur normal
             msgDiv.innerHTML = `<span class="msg-pseudo">${msgObject.sender} : </span><span class="msg-content">${msgObject.content}</span>`;
         }
-
         chatHistory.appendChild(msgDiv);
         // Auto-scroll vers le bas pour voir le dernier message
         chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -144,17 +123,18 @@
     function resetInterface() {
         loginSection.style.display = "flex";
         chatSection.style.display = "none";
+        pseudoSection.style.display = "none";
+        pseudoSection.innerHTML = "";
         chatHistory.innerHTML = "";
     }
 
     function disconnect() {
         if (socket && socket.readyState === WebSocket.OPEN) {
             console.info("Déconnexion en cours...");
+            resetInterface();
 
             // Fermer proprement la connexion
-            socket.close(1000, "User logout"); // Code 1000 = fermeture normale
-
-            // Le handler onclose défini dans connect() sera appelé automatiquement
+            socket.close(1000, "User logout");
         } else {
             console.warn("Socket déjà fermée ou non initialisée");
             resetInterface();
@@ -168,7 +148,6 @@
     sendBtn.addEventListener('click', sendMessage);
 
     disconnectBtn.addEventListener('click', disconnect);
-
     // Permettre d'appuyer sur "Entrée" pour valider le pseudo
     pseudoInput.addEventListener('keypress', function(e) {
         if(e.key === 'Enter') connect();
